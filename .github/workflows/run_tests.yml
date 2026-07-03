@@ -1,0 +1,25 @@
+name: Run Tests
+
+# Когда запускать
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Скачать код из репозитория
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Собрать Docker-образ
+      - name: Build Docker image
+        run: docker build -t cart-tests .
+
+      # 3. Запустить тесты в контейнере
+      - name: Run tests
+        run: docker run cart-tests -v -m "not slow"
