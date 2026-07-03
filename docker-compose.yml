@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  tests:
+    build: .
+    image: cart-tests
+    container_name: cart-tests-run
+    # Запускаем все тесты, кроме медленных (быстрый прогон)
+    command: ["-v", "-m", "not slow"]
