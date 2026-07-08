@@ -1,25 +1,34 @@
-name: Run Tests
+#  инструкция для GitHub Actions
 
-# Когда запускать
+name: Run Tests                    # Название пайплайна (видно во вкладке Actions)
+
 on:
   push:
-    branches: [main]
+    branches: [main]               # Запускать при пуше в ветку main
   pull_request:
-    branches: [main]
+    branches: [main]               # Запускать при создании PR в main
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-latest         # Виртуальная машина с Ubuntu
     steps:
-      # 1. Скачать код из репозитория
-      - name: Checkout code
+      - name: Checkout code        # Шаг 1: скачать код из репозитория
         uses: actions/checkout@v4
 
-      # 2. Собрать Docker-образ
-      - name: Build Docker image
+      - name: Build Docker image   # Шаг 2: собрать Docker-образ с тестами
         run: docker build -t cart-tests .
 
-      # 3. Запустить тесты в контейнере
-      - name: Run tests
+      - name: Run tests            # Шаг 3: запустить контейнер с тестами
         run: docker run cart-tests -v -m "not slow"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image to GHCR
+        run: |
+          docker tag cart-tests ghcr.io/irrlanska/pytest-playground:latest
+          docker push ghcr.io/irrlanska/pytest-playground:latest
